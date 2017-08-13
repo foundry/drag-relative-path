@@ -1,5 +1,14 @@
 { CompositeDisposable } = require 'atom'
 relative = require 'relative'
+nativeImage = require('electron').nativeImage
+
+generateNativeImageTag = (relativePath, fullPath, fileName, textEditor) ->
+    img = nativeImage.createFromPath(fullPath)
+    width = img.getSize().width
+    height = img.getSize().height
+    textEditor.insertText '<img src="' + relativePath + '" width="' + width + '" height="' + height + '" alt="' + fileName + '">\n'
+
+
 
 generateTag = (fileExtension, extension, relativePath, fileName, textEditor) ->
     type = undefined
@@ -16,7 +25,9 @@ intOrExtDrag = (currentPathFileExtension, fileExtension, relativePath, fileName,
 
     scriptArray = ['js', 'jsx', 'coffee']
     linkArray = ['css', 'scss', 'less']
-    imageArray = ['jpg', 'jpeg', 'png', 'apng', 'ico' ,'gif' ,'svg' ,'bmp' ,'webp']
+    imageArray = ['apng', 'ico' ,'gif' ,'svg' ,'bmp' ,'webp']
+    nativeImageArray = ['jpg', 'jpeg', 'png', 'ico']
+
 
     count = 0
     while count < selectedFiles.length
@@ -28,6 +39,8 @@ intOrExtDrag = (currentPathFileExtension, fileExtension, relativePath, fileName,
               generateTag fileExtension, 'css', relative(currentPath, selected), fileName, textEditor
           if imageArray.includes(fileExtension)
               generateTag fileExtension, 'img', relative(currentPath, selected), fileName, textEditor
+          if nativeImageArray.includes(fileExtension)
+              generateNativeImageTag relative(currentPath, selected), selected, fileName, textEditor
       else
         textEditor.insertText "'#{relative currentPath, selected}'" + '\n'
       count++
